@@ -1,28 +1,32 @@
+const  express = require('express');
+const {userService} = require("./services/user.service");
+
+const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 
-const afs = require('node:fs/promises');
-const fs = require('node:fs');
-const readLine = require('node:readline/promises');
-const path = require('node:path');
+app.get('/users/', async (req, res) => {
+    const data =  await userService.getAll();
+    res.json(data)
+})
 
-const start = async () => {
+app.get('/users/:id', async (req, res) => {
+ const id = req.params.id;
+ const data = await userService.getById(id);
+ res.json(data)
+})
 
-    const  sourceFilePath = path.join(process.cwd(), 'emails.txt');
-    const targetFilePath = path.join(process.cwd(), 'gmails.txt')
+app.post('/users/', async (req, res) => {
+    const user = req.body;
+    const data =  await userService.create(user);
+    res.json(data)
+})
 
-    const fileStream = fs.createReadStream(sourceFilePath, 'utf-8');
-    const rl = readLine.createInterface({input: fileStream});
-    try {
-        for await (const line of rl) {
-         const email =  line.split('\t').splice(-1)[0];
-         const domainName = email.split('@').splice(-1)[0];
-         if (domainName === 'gmail.com'){
-             await afs.appendFile(path.join(process.cwd(),'emails', `${domainName}.txt`),`${email}\n`);
-         }
-        }
-    } finally {
-         rl.close()
-    }
-}
 
-start()
+
+
+app.listen(3000, ()=> {
+    console.log('server running on 3000 port')
+})
