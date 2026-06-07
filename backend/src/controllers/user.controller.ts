@@ -18,7 +18,7 @@ class UserController {
 
     public async getById(req: Request, res: Response, next: NextFunction) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string; // Виправлено тут
             const data = await userService.getById(id);
             res.status(StatusCodesEnum.OK).json(data);
         } catch (e) {
@@ -28,7 +28,7 @@ class UserController {
 
     public async updateById(req: Request, res: Response, next: NextFunction) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string; // Виправлено тут
             const user = req.body as IUserUpdateDTO;
             const data = await userService.updateById(id, user);
             res.status(StatusCodesEnum.OK).json(data);
@@ -39,7 +39,7 @@ class UserController {
 
     public async deleteById(req: Request, res: Response, next: NextFunction) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string; // Виправлено тут
             await userService.deleteById(id);
             res.status(StatusCodesEnum.NO_CONTENT).end();
         } catch (e) {
@@ -49,9 +49,9 @@ class UserController {
 
     public async blockUser(req: Request, res: Response, next: NextFunction) {
         try {
-            const { id: userId } = req.params;
-            const { userId: myId } = req.res.locals
-                .tokenPayload as ITokenPayload;
+            const userId = req.params.id as string; // Виправлено тут
+            const tokenPayload = req.res?.locals.tokenPayload as ITokenPayload;
+            const myId = tokenPayload.userId as string; // Виправлено тут
 
             if (userId === myId) {
                 throw new ApiError("Not permitted", StatusCodesEnum.FORBIDDEN);
@@ -66,9 +66,9 @@ class UserController {
 
     public async unBblockUser(req: Request, res: Response, next: NextFunction) {
         try {
-            const { id: userId } = req.params;
-            const { userId: myId } = req.res.locals
-                .tokenPayload as ITokenPayload;
+            const userId = req.params.id as string; // Виправлено тут
+            const tokenPayload = req.res?.locals.tokenPayload as ITokenPayload;
+            const myId = tokenPayload.userId as string; // Виправлено тут
 
             if (userId === myId) {
                 throw new ApiError("Not permitted", StatusCodesEnum.FORBIDDEN);

@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
+import path from "path";
 
-dotenv.config();
+// Тепер сам конфіг перед тим, як створювати об'єкт, насильно вантажить змінні з кореня проекту
+dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
 
 interface IConfig {
     PORT: string;
@@ -23,7 +25,7 @@ interface IConfig {
 }
 
 const config: IConfig = {
-    PORT: process.env.PORT,
+    PORT: process.env.PORT || "3000", // дефолтне значення про всяк випадок
     MONGO_URI: process.env.MONGO_URI,
 
     JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,

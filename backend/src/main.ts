@@ -11,26 +11,33 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Основні роути
 app.use("/", apiRouter);
 
-app.use(
-    "*",
-    (err: ApiError, req: Request, res: Response, next: NextFunction) => {
-        const status = err.status || 500;
-        const message = err.message ?? "Something went wrong";
-        res.status(status).json({ status, message });
-    },
-);
+// Обробка неіснуючих маршрутів (404)
+app.use("*", (req: Request, res: Response, next: NextFunction) => {
+    next(new ApiError("Route not found", 404));
+});
+
+// Глобальний мідлвар для обробки помилок
+app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
+    const status = err.status || 500;
+    const message = err.message ?? "Something went wrong";
+    res.status(status).json({ status, message });
+});
+
 process.on("uncaughtException", (err) => {
     console.log("uncaughtException", err);
     process.exit(1);
 });
+
 const dbConnection = async () => {
     let dbCon = false;
 
     while (!dbCon) {
         try {
             console.log("Connecting to DB...");
+            // Якщо у локального Mac виникнуть проблеми з DNS хмари, додамо сюди сюди другий параметр { family: 4 }
             await mongoose.connect(config.MONGO_URI);
             dbCon = true;
             console.log("Database available!!!");

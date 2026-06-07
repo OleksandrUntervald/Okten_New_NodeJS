@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "3000:3000"  # Тепер зовнішній порт 3000 веде на внутрішній порт 3000
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    restart: on-failure
+    command: >
+      sh -c "npm start"
