@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Основні роути
-app.use("/", apiRouter);
+app.use("/api", apiRouter);
 
 // Обробка неіснуючих маршрутів (404)
 app.use("*", (req: Request, res: Response, next: NextFunction) => {

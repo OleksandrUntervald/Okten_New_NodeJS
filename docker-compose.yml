@@ -1,9 +1,9 @@
 services:
   app:
     build:
-      context: .
+      context: ./backend  # Вказуємо явний шлях до папки з бекендом, де лежить його Dockerfile
     ports:
-      - "3000:3000"  # Тепер зовнішній порт 3000 веде на внутрішній порт 3000
+      - "5555:3000"       # Прокидаємо реальний порт додатка (3000) назовні
     env_file:
       - .env
     volumes:
@@ -11,4 +11,25 @@ services:
       - /app/node_modules
     restart: on-failure
     command: >
-      sh -c "npm start"
+      sh -c "npm run watch:server" # Використовуємо твій робочий скрипт для розробки з хот-релоадом
+
+  db:
+    image: mongo
+    ports:
+      - "1234:27017"
+    env_file:
+      - .env.db
+    volumes:
+      - ./mongo_db:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      # Нацьковуємо Nginx на папку збірки React всередині frontend
+      - ./frontend/build:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app  # Nginx підніметься тільки після того, як запуститься бекенд
