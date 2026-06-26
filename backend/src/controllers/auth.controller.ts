@@ -43,30 +43,28 @@ class AuthController {
 
     public async refresh(req: Request, res: Response, next: NextFunction) {
         try {
-            const tokenPayload = req.res?.locals.tokenPayload as ITokenPayload;
-            const { role, userId } = tokenPayload;
+            const { role, userId } = req.res.locals
+                .tokenPayload as ITokenPayload;
             const tokens = tokenService.generateTokens({ role, userId });
 
             await tokenRepository.create({
                 ...tokens,
                 _userId: userId,
             });
-            res.status(StatusCodesEnum.OK).json(tokens);
+            res.status(StatusCodesEnum.OK).json({ tokens });
         } catch (e) {
             next(e);
         }
     }
-
     public async activate(req: Request, res: Response, next: NextFunction) {
         try {
-            const token = req.params.token as string; // Виправлено тут
+            const { token } = req.params;
             const user = await authService.activate(token);
             res.status(StatusCodesEnum.OK).json(user);
         } catch (e) {
             next(e);
         }
     }
-
     public async passwordRecoveryRequest(
         req: Request,
         res: Response,
@@ -87,7 +85,6 @@ class AuthController {
             next(e);
         }
     }
-
     public async recoveryPassword(
         req: Request,
         res: Response,
